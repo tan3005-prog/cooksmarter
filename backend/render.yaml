@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: cooksmart-backend
+    env: node
+    plan: free
+    branch: main
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGO_URI
+        scope: build
+        value: $${MONGO_URI}
+      - key: PORT
+        value: "10000"
+      - key: NODE_ENV
+        value: production
