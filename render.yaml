@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: cooksmart-backend
+    env: node
+    plan: free
+    branch: main
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGO_URI
+        scope: build
+        value: $${MONGO_URI}
+      - key: PORT
+        value: "10000"
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        scope: build
+        value: $${FRONTEND_URL}
+      - key: COOKSMART_EMAIL
+        scope: build
+        value: $${COOKSMART_EMAIL}
+      - key: COOKSMART_EMAIL_PASSWORD
+        scope: build
+        value: $${COOKSMART_EMAIL_PASSWORD}
