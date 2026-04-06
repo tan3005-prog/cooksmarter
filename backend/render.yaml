@@ -17,4 +17,19 @@ services:
       - key: FRONTEND_URL
         scope: build
         value: $${FRONTEND_URL}
+      - key: COOKSMART_EMAIL
+        scope: build
+        value: $${COOKSMART_EMAIL}
+      - key: COOKSMART_EMAIL_PASSWORD
+        scope: build
+        value: $${COOKSMART_EMAIL_PASSWORD}
+      - key: FRONTEND_URL
+        scope: build
+        value: $${FRONTEND_URL}
+      - key: COOKSMART_EMAIL
+        scope: build
+        value: $${COOKSMART_EMAIL}
+      - key: COOKSMART_EMAIL_PASSWORD
+        scope: build
+        value: $${COOKSMART_EMAIL_PASSWORD}
         value: production
