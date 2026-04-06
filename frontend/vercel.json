@@ -1,6 +1,5 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "env": "production",
-  "envTransforming": true
+  "env": "production"
 }
