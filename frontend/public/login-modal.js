@@ -327,7 +327,7 @@ if (!this.isValidEmail(email)) {
     btn.textContent = 'Logging in...';
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(getApiUrl('/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -404,7 +404,7 @@ if (!this.isValidEmail(email)) {
     btn.textContent = 'Creating account...';
 
     try {
-      const response = await fetch('/api/auth/signup', {
+      const response = await fetch(getApiUrl('/auth/signup'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ firstName, lastName, email, password })
@@ -475,7 +475,7 @@ if (!this.isValidEmail(email)) {
 
     statusEl.textContent = 'Sending OTP...';
     try {
-      const res = await fetch('/api/otp/send-email', {
+      const res = await fetch(getApiUrl('/otp/send-email'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -525,7 +525,7 @@ if (!this.isValidEmail(email)) {
 
   msgEl.textContent = 'Verifying...';
     try {
-      const res = await fetch('/api/otp/verify', {
+      const res = await fetch(getApiUrl('/otp/verify'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: this.signupPendingEmail, code })
