@@ -9,7 +9,7 @@
  * fetch(getApiUrl('/recipes'))
  */
 
-const API_URL = typeof __API_URL__ !== 'undefined' ? __API_URL__ : (window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://cooksmart-backend-nr48.onrender.com');
+const API_URL = typeof __API_URL__ !== 'undefined' && __API_URL__ ? __API_URL__ : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : '');
 
 /**
  * Get full API URL
@@ -17,14 +17,20 @@ const API_URL = typeof __API_URL__ !== 'undefined' ? __API_URL__ : (window.locat
  * @returns {string} Full URL
  */
 function getApiUrl(path) {
-  // If it's a relative path and we're in development, use relative path
-  // (Vite proxy will handle it)
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return path;
+  if (typeof path !== 'string') {
+    path = String(path);
   }
-  
-  // In production, use full API URL
-  return API_URL + path;
+
+  if (!path.startsWith('/')) {
+    path = '/' + path;
+  }
+
+  if (API_URL) {
+    return API_URL.replace(/\/$/, '') + path;
+  }
+
+  // Use relative API path in development and production behind Vercel rewrites.
+  return path;
 }
 
 /**

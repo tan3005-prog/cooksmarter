@@ -11,17 +11,29 @@ const app = express();
 // Configure CORS for both development and production
 const allowedOrigins = [
   'http://localhost:3001',           // Local development
-  'http://localhost:3000',           // Local development
-  process.env.FRONTEND_URL || ''     // Production URL (e.g., https://yourapp.vercel.app)
-].filter(Boolean);
+  'http://localhost:3000'            // Local development
+];
+
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+} else {
+  console.warn('FRONTEND_URL is not set. Allowing Vercel and Render origins for deployed frontend access.');
+}
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+      return callback(null, true);
     }
+
+    if (!process.env.FRONTEND_URL) {
+      const lower = origin.toLowerCase();
+      if (lower.endsWith('.vercel.app') || lower.endsWith('.onrender.com')) {
+        return callback(null, true);
+      }
+    }
+
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true
 }));
