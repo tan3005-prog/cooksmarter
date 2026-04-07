@@ -15,13 +15,16 @@ if (!COOK_EMAIL || !COOK_PASS) {
   console.warn('COOKSMART_EMAIL or COOKSMART_EMAIL_PASSWORD not configured; email OTP endpoints will not send mails.');
 }
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: COOK_EMAIL,
-    pass: COOK_PASS
-  }
-});
+// Function to create a fresh transporter for each email (prevents timeout issues)
+function getTransporter() {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: COOK_EMAIL,
+      pass: COOK_PASS
+    }
+  });
+}
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
