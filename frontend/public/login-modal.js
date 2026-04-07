@@ -333,7 +333,16 @@ if (!this.isValidEmail(email)) {
         body: JSON.stringify({ email, password })
       });
 
-      const data = await response.json();
+      let data;
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Login response not JSON:', text);
+        this.showError('login-error', `Server error: ${response.status} ${response.statusText}`);
+        return;
+      }
 
       if (!response.ok) {
         console.error('Login error response:', data);

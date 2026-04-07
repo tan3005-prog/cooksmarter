@@ -9,7 +9,11 @@
  * fetch(getApiUrl('/recipes'))
  */
 
-const API_URL = typeof __API_URL__ !== 'undefined' && __API_URL__ ? __API_URL__ : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : '');
+const DEFAULT_API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000'
+  : 'https://cooksmart-backend-nr48.onrender.com';
+
+const API_URL = typeof __API_URL__ !== 'undefined' && __API_URL__ ? __API_URL__ : DEFAULT_API_URL;
 
 /**
  * Get full API URL
