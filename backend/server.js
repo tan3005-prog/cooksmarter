@@ -22,18 +22,8 @@ if (process.env.FRONTEND_URL) {
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow same-origin or explicit allowed origins
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-
-    // During development, allow any localhost or 127.0.0.1 origin regardless of port
-    try {
-      const lower = origin.toLowerCase();
-      if (lower.startsWith('http://localhost') || lower.startsWith('https://localhost') || lower.startsWith('http://127.0.0.1') || lower.startsWith('https://127.0.0.1')) {
-        return callback(null, true);
-      }
-    } catch (e) {
-      // fallthrough to other checks
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
 
     if (!process.env.FRONTEND_URL) {

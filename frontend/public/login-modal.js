@@ -1,17 +1,10 @@
 // login-modal.js
-
-const DEFAULT_API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:3000'
-  : 'https://cooksmart-backend-nr48.onrender.com';
-
-function getApiUrl(path) {
-  if (typeof path !== 'string') {
-    path = String(path);
+if (typeof getApiUrl === 'undefined') {
+  function getApiUrl(path) {
+    if (typeof path !== 'string') path = String(path);
+    if (!path.startsWith('/')) path = '/' + path;
+    return path;
   }
-  if (!path.startsWith('/')) {
-    path = '/' + path;
-  }
-  return DEFAULT_API_URL.replace(/\/$/, '') + path;
 }
 
 class LoginModal {
@@ -497,7 +490,7 @@ if (!this.isValidEmail(email)) {
       return;
     }
 
-    statusEl.textContent = 'Sending OTP...';
+    statusEl.textContent = 'Sending OTP(check spam folder)';
     try {
       const res = await fetch(getApiUrl('/api/otp/send-email'), {
         method: 'POST',
