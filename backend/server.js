@@ -9,30 +9,36 @@ const cors = require('cors');
 const app = express();
 
 // Configure CORS for both development and production
+function normalizeOrigin(url = '') {
+  return String(url).trim().replace(/\/$/, '');
+}
+
 const allowedOrigins = [
   'http://localhost:3001',           // Local development
   'http://localhost:3000'            // Local development
 ];
 
 if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
+  allowedOrigins.push(normalizeOrigin(process.env.FRONTEND_URL));
 } else {
   console.warn('FRONTEND_URL is not set. Allowing Vercel and Render origins for deployed frontend access.');
 }
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+
+    const normalizedOrigin = normalizeOrigin(origin);
+    const lower = normalizedOrigin.toLowerCase();
+    const isAllowed = allowedOrigins.includes(normalizedOrigin)
+      || lower.endsWith('.vercel.app')
+      || lower.endsWith('.onrender.com');
+
+    if (isAllowed) {
       return callback(null, true);
     }
 
-    if (!process.env.FRONTEND_URL) {
-      const lower = origin.toLowerCase();
-      if (lower.endsWith('.vercel.app') || lower.endsWith('.onrender.com')) {
-        return callback(null, true);
-      }
-    }
-
+    console.warn('CORS rejected origin:', origin, 'allowedOrigins:', allowedOrigins);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true
