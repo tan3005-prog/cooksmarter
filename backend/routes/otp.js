@@ -7,30 +7,21 @@ const nodemailer = require('nodemailer');
 // Note: for production use a persistent store (Redis) and rate-limiting.
 const otpStore = new Map();
 
-// Transport configuration uses env vars for SMTP provider settings.
-const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
-const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
-const SMTP_SECURE = process.env.SMTP_SECURE === 'true';
-const SMTP_USER = process.env.SMTP_USER || process.env.COOKSMART_EMAIL;
-const SMTP_PASS = process.env.SMTP_PASS || process.env.COOKSMART_EMAIL_PASSWORD;
-const SMTP_FROM = process.env.SMTP_FROM || `CookSmart <${SMTP_USER || 'no-reply@example.com'}>`;
+// Transport configuration uses env vars COOKSMART_EMAIL and COOKSMART_EMAIL_PASSWORD
+const COOK_EMAIL = process.env.COOKSMART_EMAIL;
+const COOK_PASS = process.env.COOKSMART_EMAIL_PASSWORD;
 
-if (!SMTP_USER || !SMTP_PASS) {
-  console.warn('SMTP_USER or SMTP_PASS not configured; email OTP endpoints will not send mails.');
+if (!COOK_EMAIL || !COOK_PASS) {
+  console.warn('COOKSMART_EMAIL or COOKSMART_EMAIL_PASSWORD not configured; email OTP endpoints will not send mails.');
 }
 
 // Function to create a fresh transporter for each email (prevents timeout issues)
 function getTransporter() {
   return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: SMTP_SECURE,
+    service: 'gmail',
     auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS
-    },
-    tls: {
-      rejectUnauthorized: false
+      user: COOK_EMAIL,
+      pass: COOK_PASS
     }
   });
 }
