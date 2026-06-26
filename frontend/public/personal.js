@@ -388,7 +388,7 @@ function updateSaveEnabled() {
 async function simulateSendOtp(target, pendingChanges) {
   // Call server to send OTP (server will use configured CookSmart email if available)
   try {
-    const resp = await fetch(`${API}/otp/send-email`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: target }) });
+    const resp = await fetch(`${API}/api/otp/send-email`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: target }) });
     const data = await resp.json().catch(()=>({}));
     if (!resp.ok) {
       console.warn('send-email failed', data);

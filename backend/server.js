@@ -109,7 +109,7 @@ try {
 // mount OTP router for email verification (uses env COOKSMART_EMAIL / COOKSMART_EMAIL_PASSWORD)
 try {
   const otpRouter = require('./routes/otp');
-  app.use('/api/otp', otpRouter);
+app.use('/api/otp', otpRouter);
   console.log('✅ OTP router loaded');
 } catch (e) {
   console.warn('Could not load ./routes/otp:', e.message);
