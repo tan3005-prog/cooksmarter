@@ -1,17 +1,15 @@
-// api/otp.js
 const express = require('express');
 const router = express.Router();
-const { Resend } = require('resend');
+const sgMail = require('@sendgrid/mail');
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const otpStore = new Map();
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// POST /api/otp/send-email { email }
 router.post('/send-email', async (req, res) => {
   try {
     const { email } = req.body || {};
@@ -21,9 +19,9 @@ router.post('/send-email', async (req, res) => {
     const expiresAt = Date.now() + (10 * 60 * 1000);
     otpStore.set(email, { code, expiresAt });
 
-    await resend.emails.send({
-      from: 'onboarding@resend.dev', // ← free default sender, no domain needed
-      to: email,
+    await sgMail.send({
+      to: email,                          // ✅ any email works!
+      from: 'wethecooksmart@gmail.com',   // ← must verify this in SendGrid
       subject: 'Your CookSmart verification code',
       html: `<p>Your verification code is <b>${code}</b>. It expires in 10 minutes.</p>`
     });
@@ -36,7 +34,7 @@ router.post('/send-email', async (req, res) => {
   }
 });
 
-// POST /api/otp/verify { email, code }
+// verify route stays exactly the same
 router.post('/verify', (req, res) => {
   try {
     const { email, code } = req.body || {};
