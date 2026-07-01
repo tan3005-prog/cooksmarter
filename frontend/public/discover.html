@@ -15,6 +15,7 @@
   
   
   <style>
+   
     /* Custom background image for Discover page */
     body.bg-discover {
       background-image: linear-gradient(rgba(255,250,240,0.85), rgba(243,248,255,0.85)), url('https://static.vecteezy.com/system/resources/previews/008/660/558/non_2x/organic-food-background-hand-drawn-concept-free-vector.jpg');
@@ -1241,6 +1242,41 @@
             More Details
           </button>
         </div>
+       <div id="recipeModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalRecipeContent"></div>
+  </div>
+
+  <!-- Bubble OUTSIDE modal-content, INSIDE overlay -->
+  <button id="subBotBubble" onclick="openSubChat(); event.stopPropagation();" title="Ask about substitutions"
+    style="position:fixed; bottom:30px; right:30px; width:56px; height:56px;
+    border-radius:50%; background:#667eea; border:none; cursor:pointer;
+    box-shadow:0 4px 16px rgba(102,126,234,0.5); display:flex; align-items:center;
+    justify-content:center; font-size:26px; z-index:2000;">
+    🔄
+  </button>
+
+  <!-- Chat panel OUTSIDE modal-content too -->
+  <div id="subChatPanel" onclick="event.stopPropagation()" style="display:none; position:fixed; bottom:30px; right:30px;
+    width:310px; background:white; border-radius:14px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.25); z-index:2000; flex-direction:column; overflow:hidden;">
+    <div style="background:#667eea; color:white; padding:12px 14px; display:flex;
+      justify-content:space-between; align-items:center;">
+      <span style="font-weight:600; font-size:0.95rem;">🔄 Substitution Bot</span>
+      <button onclick="closeSubChat()" style="background:none; border:none; color:white; font-size:18px; cursor:pointer; line-height:1;">✕</button>
+    </div>
+    <div id="subChatMessages" style="overflow-y:auto; padding:10px; background:#fafbff; max-height:240px; min-height:60px;"></div>
+    <div style="padding:10px; border-top:1px solid #eee; display:flex; gap:6px;">
+      <input type="text" id="subChatInput" placeholder="e.g. make this vegan"
+        style="flex:1; padding:8px 10px; border-radius:8px; border:1px solid #ddd; font-size:0.85rem; outline:none;"
+        onkeypress="if(event.key==='Enter') sendSubChatMessage()">
+      <button onclick="sendSubChatMessage()"
+        style="padding:0 14px; background:#667eea; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:700; font-size:1rem;">➤</button>
+    </div>
+  </div>
+</div>
+
         `;
       }).join("");
     }
@@ -1357,6 +1393,9 @@ if (recipe.nutrition && typeof recipe.nutrition === "object") {
 function closeModal() {
   document.getElementById("recipeModal").classList.remove("active");
   document.body.style.overflow = "auto";
+ // Reset substitution bot
+  document.getElementById('subChatPanel').style.display = 'none';
+  document.getElementById('subBotBubble').style.display = 'flex';
 
   if (currentOpenRecipe) {
     // ✅ Try all possible id fields
@@ -1585,7 +1624,113 @@ function closeModal() {
   btn.classList.toggle('active');
   content.classList.toggle('show');
 }
+let subChatHistory = [];
+let currentSubRecipe = null;
 
+function openSubChat() {
+  document.getElementById('subChatPanel').style.display = 'flex';
+  document.getElementById('subBotBubble').style.display = 'none';
+
+  if (currentSubRecipe !== currentOpenRecipe) {
+    currentSubRecipe = currentOpenRecipe;
+    subChatHistory = [];
+    document.getElementById('subChatMessages').innerHTML =
+      `<div style="font-size:0.82rem; color:#4a5568; padding:6px 2px;">Ask me things like "I don't have eggs" or "make this gluten-free".</div>`;
+  }
+}
+
+function closeSubChat() {
+  document.getElementById('subChatPanel').style.display = 'none';
+  document.getElementById('subBotBubble').style.display = 'flex';
+}
+
+async function sendSubChatMessage() {
+  const input = document.getElementById('subChatInput');
+  const question = input.value.trim();
+  if (!question || !currentOpenRecipe) return;
+
+  const messagesBox = document.getElementById('subChatMessages');
+  messagesBox.innerHTML += `
+    <div style="text-align:right; margin:6px 0;">
+      <span style="background:#667eea; color:white; padding:6px 10px; border-radius:10px; display:inline-block; font-size:0.83rem; max-width:85%;">${escapeHtml(question)}</span>
+    </div>`;
+  input.value = '';
+  messagesBox.scrollTop = messagesBox.scrollHeight;
+
+  const loadingId = 'sub-loading-' + Date.now();
+  messagesBox.innerHTML += `<div id="${loadingId}" style="font-size:0.78rem; color:#999; padding:4px 0;">Thinking...</div>`;
+  messagesBox.scrollTop = messagesBox.scrollHeight;
+
+  try {
+    const res = await fetch(`${API}/substitution/ask`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        recipe: currentOpenRecipe,
+        question,
+        conversationHistory: subChatHistory
+      })
+    });
+
+    document.getElementById(loadingId)?.remove();
+    if (!res.ok) throw new Error('Request failed');
+    const data = await res.json();
+
+    subChatHistory.push({ role: 'user', content: question });
+    subChatHistory.push({ role: 'assistant', content: data.explanation });
+    subChatHistory = subChatHistory.slice(-6);
+
+    let changesHtml = '';
+    if (Array.isArray(data.changesSummary) && data.changesSummary.length) {
+      changesHtml = `<ul style="margin:6px 0 0; padding-left:16px; font-size:0.78rem;">
+        ${data.changesSummary.map(c => `<li>${escapeHtml(c)}</li>`).join('')}
+      </ul>`;
+    }
+
+    const applyBtnId = 'apply-' + Date.now();
+    messagesBox.innerHTML += `
+      <div style="margin:6px 0;">
+        <div style="background:white; border:1px solid #e2e8f0; padding:8px 10px; border-radius:10px; font-size:0.83rem; color:#2d3748;">
+          ${escapeHtml(data.explanation || '')}
+          ${changesHtml}
+          ${data.updatedRecipe ? `<button id="${applyBtnId}" style="margin-top:8px; padding:5px 12px; background:#16a34a; color:white; border:none; border-radius:6px; font-size:0.78rem; cursor:pointer;">Apply to recipe</button>` : ''}
+        </div>
+      </div>`;
+    messagesBox.scrollTop = messagesBox.scrollHeight;
+
+    if (data.updatedRecipe) {
+      document.getElementById(applyBtnId).addEventListener('click', () => {
+        applySubstitution(data.updatedRecipe);
+      });
+    }
+
+  } catch (err) {
+    document.getElementById(loadingId)?.remove();
+    messagesBox.innerHTML += `<div style="font-size:0.78rem; color:#e53e3e; padding:4px 0;">Sorry, something went wrong. Try again.</div>`;
+    console.error('Substitution chat error:', err);
+  }
+}
+
+function applySubstitution(updatedRecipe) {
+  if (!currentOpenRecipe) return;
+
+  if (Array.isArray(updatedRecipe.ingredients)) {
+    currentOpenRecipe.ingredients = updatedRecipe.ingredients;
+  }
+  if (updatedRecipe.instructions) {
+    currentOpenRecipe.instructions = updatedRecipe.instructions;
+  }
+
+  const ingredientsSpan = document.querySelector('.modal-ingredients-section span');
+  if (ingredientsSpan) {
+    const text = Array.isArray(currentOpenRecipe.ingredients)
+      ? currentOpenRecipe.ingredients.join(', ')
+      : String(currentOpenRecipe.ingredients);
+    ingredientsSpan.textContent = text;
+  }
+
+  showNotification('Recipe updated with substitution!', 'success');
+}
     // Recipe Options Functions
     function saveRecipe(index) {
       const recipe = allRecipes[index];

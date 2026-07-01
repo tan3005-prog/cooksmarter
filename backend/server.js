@@ -136,7 +136,13 @@ async function shutdown() {
   try { await mongoose.disconnect(); } catch (e) { console.warn(e.message); }
   server.close(() => process.exit(0));
 }
-
+try {
+  const substitutionRouter = require('./routes/substitution');
+  app.use('/api/substitution', substitutionRouter);
+  console.log('✅ Substitution router loaded');
+} catch (e) {
+  console.warn('Could not load ./routes/substitution:', e.message);
+}
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 process.on('unhandledRejection', (r) => console.error('Unhandled Rejection:', r));

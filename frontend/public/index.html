@@ -63,76 +63,6 @@ background-attachment:fixed;
   transform: rotate(-45deg) translate(5px, -6px);
 }
 
-/* Mobile styles */
-@media (max-width: 768px) {
-  .hamburger {
-    display: flex; /* ✅ show on mobile */
-  }
-
-  .navbar-menu {
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 70px;
-    left: 0;
-    right: 0;
-    background: white;
-    padding: 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-    z-index: 1000;
-    gap: 8px;
-  }
-
-  .navbar-menu.open {
-    display: flex; /* ✅ show menu when open */
-  }
-
-  .navbar-menu li {
-    width: 100%;
-    text-align: center;
-  }
-
-  .navbar-menu li a {
-    display: block;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 1rem;
-    color: #333;
-    transition: background 0.2s;
-  }
-
-  .navbar-menu li a:hover {
-    background: #f3f0fa;
-    color: #764ba2;
-  }
-
-  /* Make sure navbar is relative for absolute menu */
-  .navbar {
-    position: relative;
-  }
-  body {
-    background-attachment: scroll;
-  }
-  .hero {
-    max-width: 100%;
-    margin: 2rem 1rem;
-    padding: 4rem 1.5rem;
-    background-attachment: scroll;
-    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('images/kitchenhome.jpg') !important;
-    background-size: cover !important;
-    background-position: center !important;
-  }
-  .hero h1 {
-    font-size: clamp(1.8rem, 8vw, 2.4rem);
-  }
-  .hero p {
-    font-size: clamp(0.95rem, 4vw, 1.1rem);
-  }
-  .cta-btn {
-    font-size: 1rem;
-    padding: 1rem 2rem;
-  }
-}
 .hero{
 max-width:1200px;
 margin:4rem auto;
@@ -273,6 +203,140 @@ color:black;
 margin-top:40px;
 }
 
+/* ======================================================
+   MOBILE STYLES — must stay LAST in this stylesheet.
+   Everything below only applies on screens <= 768px wide,
+   and because it's the last block, it correctly overrides
+   the desktop rules above on mobile screens.
+   ====================================================== */
+@media (max-width: 768px) {
+
+  .hamburger {
+    display: flex;
+  }
+
+  .navbar-menu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    z-index: 1000;
+    gap: 8px;
+  }
+
+  .navbar-menu.open {
+    display: flex;
+  }
+
+  .navbar-menu li {
+    width: 100%;
+    text-align: center;
+  }
+
+  .navbar-menu li a {
+    display: block;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    transition: background 0.2s;
+  }
+
+  .navbar-menu li a:hover {
+    background: #f3f0fa;
+    color: #764ba2;
+  }
+
+  .navbar {
+    position: relative;
+  }
+
+  body {
+    background-attachment: scroll;
+  }
+
+  .hero {
+    max-width: 100%;
+    margin: 2rem 1rem;
+    padding: 4rem 1.5rem;
+    background-attachment: scroll;
+    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('images/kitchenhome.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.8rem, 8vw, 2.4rem);
+  }
+
+  .hero p {
+    font-size: clamp(0.95rem, 4vw, 1.1rem);
+  }
+
+  .cta-btn {
+    font-size: 1rem;
+    padding: 1rem 2rem;
+  }
+
+  .section-title {
+    padding: 0 1rem;
+  }
+
+  /* Horizontal scrolling feature cards */
+  .features {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 1rem;
+    margin: 2rem 0;
+    padding: 0.5rem 1.25rem 1.5rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .feature-card {
+    flex: 0 0 78%;
+    max-width: 280px;
+    scroll-snap-align: center;
+    cursor: pointer;
+  }
+
+  .feature-card p {
+    display: none;
+    margin-top: 0.75rem;
+    text-align: left;
+  }
+
+  .feature-card.expanded p {
+    display: block;
+  }
+
+  .feature-card h3::after {
+    content: "  ▾";
+    font-size: 1rem;
+    color: #999;
+  }
+
+  .feature-card.expanded h3::after {
+    content: "  ▴";
+  }
+
+  /* "More Benefits" cards: description always visible,
+     no tap-to-expand arrow needed here */
+  .benefits-section .feature-card p {
+    display: block;
+  }
+
+  .benefits-section .feature-card h3::after {
+    content: "";
+  }
+}
+
 </style>
 </head>
 
@@ -367,9 +431,9 @@ margin-top:40px;
 
 <h2 class="section-title">More Benefits</h2>
 
-<section class="features">
+<section class="features benefits-section">
 
-<div class="feature-card">
+<div class="feature-card" data-link="feedback.html">
 <div class="feature-icon">⭐</div>
 <h3>Community Rated</h3>
 <p>Recipes are rated by users to help you choose the best dishes.</p>
@@ -381,7 +445,7 @@ margin-top:40px;
 <p>CookSmart works perfectly on phones, tablets, and desktops.</p>
 </div>
 
-<div class="feature-card">
+<div class="feature-card" data-link="trending.html">
 <div class="feature-icon">🍽️</div>
 <h3>Today's Recommendations</h3>
 <p>Discover trending and recommended recipes updated daily.</p>
@@ -418,6 +482,22 @@ document.querySelectorAll('.navbar-menu a').forEach(link => {
   link.addEventListener('click', () => {
     document.getElementById('navbar-menu').classList.remove('open');
     document.getElementById('hamburger').classList.remove('open');
+  });
+});
+
+// Tap-to-expand feature cards (mobile only)
+// Exception: cards with a data-link attribute navigate straight to
+// that page instead of expanding (e.g. "Community Rated" -> trending.html)
+document.querySelectorAll('.feature-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const link = card.getAttribute('data-link');
+    if (link) {
+      window.location.href = link;
+      return;
+    }
+    if (window.innerWidth <= 768) {
+      card.classList.toggle('expanded');
+    }
   });
 });
 </script>
